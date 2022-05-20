@@ -6,7 +6,7 @@ const fs = require('fs');
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 fs.createWriteStream(path.join(__dirname, 'text.txt'), 'utf-8');
 
-console.log('hello');
+console.log('Hello, write your text ad press Enter');
 
 rl.on('line', (input) => {
   if (input === 'exit') {
