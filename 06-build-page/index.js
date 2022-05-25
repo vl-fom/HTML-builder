@@ -53,8 +53,8 @@ new Promise((resolve) => {
       let ws = new fs.createWriteStream(path.join(__dirname, 'project-dist', 'index.html'), 'utf-8');
       ws.write(html);
       ws.end();
-      resolve()
-    })
+      resolve();
+    });
   })
   .then(() => {
     return new Promise((resolve) => {
@@ -73,7 +73,7 @@ new Promise((resolve) => {
           });
         });
       });
-    })
+    });
   })
   .then(() => {
     return new Promise((resolve) => {
@@ -85,8 +85,8 @@ new Promise((resolve) => {
         }
       });
       ws.end();
-      resolve()
-    })
+      resolve();
+    });
   })
   .then(() => {
     fsPromises.mkdir(path.join(__dirname, 'project-dist/assets'), { recursive: true });
@@ -150,4 +150,4 @@ new Promise((resolve) => {
         });
       });
     });
-  })
+  });
