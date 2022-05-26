@@ -1,7 +1,31 @@
 const path = require('path');
 const fs = require('fs');
-let html = '', stylesArr = [];
+let html = '', stylesArr = [], tags = [];
 const fsPromises = fs.promises;
+
+async function createTag (file) {
+  return new Promise((resolve) => {
+    if (file.isFile()) {
+      fs.stat(path.join(__dirname, 'components', file.name), () => {
+        let fileName = file.name.slice(0, file.name.indexOf(path.extname(file.name)));
+        tags.push(fileName);
+        resolve();
+      });
+    }
+  });
+}
+
+async function replaceTag(tag) {
+  return new Promise((resolve) => {
+    fs.readFile(path.join(__dirname, `components/${tag}.html`), { encoding: 'utf-8' }, (err, data) => {
+      if(err) {
+        throw new Error(err);
+      } 
+      html = html.replace(('{{'.concat(tag, '}}')), data);
+      resolve();
+    });
+  });
+}
 
 new Promise((resolve) => {
   fs.readFile(path.join(__dirname, 'template.html'), { encoding: 'utf-8' }, (err, data) => {
@@ -14,36 +38,17 @@ new Promise((resolve) => {
 })
   .then(() => {
     return new Promise((resolve) => {
-      fs.readFile(path.join(__dirname, 'components/header.html'), { encoding: 'utf-8' }, (err, data) => {
-        if(err) {
-          throw new Error(err);
+      fs.readdir(path.join(__dirname, 'components'), {withFileTypes: true}, async (err, files) => {
+        for (const file of files ){
+          await createTag (file);
         }
-        html = html.replace('{{header}}', data); 
         resolve();
       });
     });
   })
-  .then(() => {
-    return new Promise((resolve) => {
-      fs.readFile(path.join(__dirname, 'components/articles.html'), { encoding: 'utf-8' }, (err, data) => {
-        if(err) {
-          throw new Error(err);
-        }
-        html = html.replace('{{articles}}', data); 
-        resolve();
-      });
-    });
-  })
-  .then(() => {
-    return new Promise((resolve) => {
-      fs.readFile(path.join(__dirname, 'components/footer.html'), { encoding: 'utf-8' }, (err, data) => {
-        if(err) {
-          throw new Error(err);
-        }
-        html = html.replace('{{footer}}', data); 
-        resolve();
-      });
-    });
+  .then(async () => {
+    let promises = tags.map(replaceTag);
+    await Promise.all(promises);
   })
   .then(() => {
     fsPromises.mkdir(path.join(__dirname, 'project-dist'), { recursive: true });
